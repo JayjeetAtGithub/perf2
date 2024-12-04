@@ -8,7 +8,7 @@ void measure_flops() {
   float a = 46776.56857784;
   float b = 34445.14848484;
   float c = 63344.76857294;
-  float d = 75685.76857294;
+  float d = 75685.83947567;
   float e = 19494.34848399;
   float x = 0.0;
 
