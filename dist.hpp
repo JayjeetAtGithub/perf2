@@ -1,7 +1,7 @@
 #pragma once
 
-#include <immintrin.h>
 #include <chrono>
+#include <immintrin.h>
 #include <unordered_map>
 
 #include "oneapi/dnnl/dnnl.hpp"
@@ -52,8 +52,8 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
 }
 
 static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
-                      const float *a, const float *b,
-                      dnnl::engine &engine, dnnl::stream &stream) {
+                       const float *a, const float *b, dnnl::engine &engine,
+                       dnnl::stream &stream) {
   dnnl::memory::dims a_dims = {r1, c};
   dnnl::memory::dims b_dims = {c, r2};
   dnnl::memory::dims c_dims = {r1, r2};
@@ -87,9 +87,8 @@ static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
 }
 
 static void amx_inner_product(int32_t const &n, int32_t const &oc,
-                              int32_t const &ic, const float *s,
-                              const float* w, dnnl::engine &engine,
-                              dnnl::stream &stream) {
+                              int32_t const &ic, const float *s, const float *w,
+                              dnnl::engine &engine, dnnl::stream &stream) {
 
   dnnl::memory::dims s_dims = {n, ic};
   dnnl::memory::dims w_dims = {oc, ic};
@@ -126,7 +125,7 @@ static void amx_inner_product(int32_t const &n, int32_t const &oc,
 }
 
 static float inner_product(void const *vec1, void const *vec2,
-                          int32_t const &dim) {
+                           int32_t const &dim) {
   float *v1 = (float *)vec1;
   float *v2 = (float *)vec2;
   float result = 0;
@@ -136,65 +135,62 @@ static float inner_product(void const *vec1, void const *vec2,
   return result;
 }
 
-static float
-inner_product_avx512(const void *vec1, const void *vec2, int32_t const &dim) {
-    float PORTABLE_ALIGN64 TmpRes[16];
-    float *pVect1 = (float *) vec1;
-    float *pVect2 = (float *) vec2;
+static float inner_product_avx512(const void *vec1, const void *vec2,
+                                  int32_t const &dim) {
+  float PORTABLE_ALIGN64 TmpRes[16];
+  float *pVect1 = (float *)vec1;
+  float *pVect2 = (float *)vec2;
 
-    size_t qty16 = dim / 16;
+  size_t qty16 = dim / 16;
 
-    const float *pEnd1 = pVect1 + 16 * qty16;
+  const float *pEnd1 = pVect1 + 16 * qty16;
 
-    __m512 sum512 = _mm512_set1_ps(0);
+  __m512 sum512 = _mm512_set1_ps(0);
 
-    size_t loop = qty16 / 4;
-    
-    while (loop--) {
-        __m512 v1 = _mm512_loadu_ps(pVect1);
-        __m512 v2 = _mm512_loadu_ps(pVect2);
-        pVect1 += 16;
-        pVect2 += 16;
+  size_t loop = qty16 / 4;
 
-        __m512 v3 = _mm512_loadu_ps(pVect1);
-        __m512 v4 = _mm512_loadu_ps(pVect2);
-        pVect1 += 16;
-        pVect2 += 16;
+  while (loop--) {
+    __m512 v1 = _mm512_loadu_ps(pVect1);
+    __m512 v2 = _mm512_loadu_ps(pVect2);
+    pVect1 += 16;
+    pVect2 += 16;
 
-        __m512 v5 = _mm512_loadu_ps(pVect1);
-        __m512 v6 = _mm512_loadu_ps(pVect2);
-        pVect1 += 16;
-        pVect2 += 16;
+    __m512 v3 = _mm512_loadu_ps(pVect1);
+    __m512 v4 = _mm512_loadu_ps(pVect2);
+    pVect1 += 16;
+    pVect2 += 16;
 
-        __m512 v7 = _mm512_loadu_ps(pVect1);
-        __m512 v8 = _mm512_loadu_ps(pVect2);
-        pVect1 += 16;
-        pVect2 += 16;
+    __m512 v5 = _mm512_loadu_ps(pVect1);
+    __m512 v6 = _mm512_loadu_ps(pVect2);
+    pVect1 += 16;
+    pVect2 += 16;
 
-        sum512 = _mm512_fmadd_ps(v1, v2, sum512);
-        sum512 = _mm512_fmadd_ps(v3, v4, sum512);
-        sum512 = _mm512_fmadd_ps(v5, v6, sum512);
-        sum512 = _mm512_fmadd_ps(v7, v8, sum512);
-    }
+    __m512 v7 = _mm512_loadu_ps(pVect1);
+    __m512 v8 = _mm512_loadu_ps(pVect2);
+    pVect1 += 16;
+    pVect2 += 16;
 
-    while (pVect1 < pEnd1) {
-        __m512 v1 = _mm512_loadu_ps(pVect1);
-        __m512 v2 = _mm512_loadu_ps(pVect2);
-        pVect1 += 16;
-        pVect2 += 16;
-        sum512 = _mm512_fmadd_ps(v1, v2, sum512);
-    }
+    sum512 = _mm512_fmadd_ps(v1, v2, sum512);
+    sum512 = _mm512_fmadd_ps(v3, v4, sum512);
+    sum512 = _mm512_fmadd_ps(v5, v6, sum512);
+    sum512 = _mm512_fmadd_ps(v7, v8, sum512);
+  }
 
-    float sum = _mm512_reduce_add_ps(sum512);
-    return sum;
+  while (pVect1 < pEnd1) {
+    __m512 v1 = _mm512_loadu_ps(pVect1);
+    __m512 v2 = _mm512_loadu_ps(pVect2);
+    pVect1 += 16;
+    pVect2 += 16;
+    sum512 = _mm512_fmadd_ps(v1, v2, sum512);
+  }
+
+  float sum = _mm512_reduce_add_ps(sum512);
+  return sum;
 }
 
-static void ip_distance_avx512(const float* query,
-                                        const float* data,
-                                        int32_t data_size,
-                                        int32_t dim,
-                                        dnnl::engine &engine,
-                                        dnnl::stream &stream) {
+static void ip_distance_avx512(const float *query, const float *data,
+                               int32_t data_size, int32_t dim,
+                               dnnl::engine &engine, dnnl::stream &stream) {
   for (int32_t i = 0; i < data_size; i++) {
     inner_product_avx512(query, data + i * dim, dim);
   }
