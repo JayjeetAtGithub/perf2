@@ -114,7 +114,7 @@ public:
     }
 };
 
-void run_bench() {
+void run_bench_sq_matrix() {
     dnnl::engine engine(dnnl::engine::kind::cpu, 0);
     dnnl::stream stream(engine);
     
@@ -133,7 +133,25 @@ void run_bench() {
     bench.print_results();
 }
 
+void run_bench_rect_matrix() {
+    dnnl::engine engine(dnnl::engine::kind::cpu, 0);
+    dnnl::stream stream(engine);
+    
+    Benchmark bench(engine, stream);
+
+    uint64_t const n2 = 1024 * 1024;
+    uint64_t const m = 4092;
+
+    // Just bench AMX
+    bench.only_amx = true;
+    std::vector<uint64_t> n1s = {64, 128, 256, 512, 1024, 2048, 4096, 8192, 16384, 32768};
+    for (auto n1 : n1s) {
+        bench.run_ip(n1, n2, m);
+    }
+    bench.print_results();
+}
 
 int main(int argc, char **argv) {
-    run_bench();
+    run_bench_sq_matrix();
+    run_bench_rect_matrix();
 }
