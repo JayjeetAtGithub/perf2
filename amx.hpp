@@ -9,6 +9,8 @@
 
 using pprinter = VariadicTable<std::string, std::string, double, double, double, double>;
 
+#define OMP_PARALLEL_FOR _Pragma("omp parallel for")
+
 namespace avs {
 
 class Benchmark {
@@ -37,11 +39,14 @@ public:
         rng.seed(47);
         std::uniform_real_distribution<float> distrib;
 
+        OMP_PARALLEL_FOR
         for (uint64_t i = 0; i < N1; i++) {
             for (uint64_t j = 0; j < M; j++) {
                 mat_a[i * M + j] = distrib(rng);
             }
         }
+
+        OMP_PARALLEL_FOR
         for (uint64_t i = 0; i < N2; i++) {
             for (uint64_t j = 0; j < M; j++) {
                 mat_b[i * M + j] = distrib(rng);
@@ -82,11 +87,14 @@ public:
         rng.seed(47);
         std::uniform_real_distribution<float> distrib;
 
+        OMP_PARALLEL_FOR
         for (uint64_t i = 0; i < N1; i++) {
             for (uint64_t j = 0; j < M; j++) {
                 mat_a[i * M + j] = distrib(rng);
             }
         }
+
+        OMP_PARALLEL_FOR
         for (uint64_t i = 0; i < M; i++) {
             for (uint64_t j = 0; j < N2; j++) {
                 mat_b[i * N2 + j] = distrib(rng);
