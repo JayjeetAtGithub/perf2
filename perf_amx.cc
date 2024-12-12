@@ -139,7 +139,7 @@ void run_bench_rect_matrix() {
     
     Benchmark bench(engine, stream);
 
-    uint64_t const n2 = 1024 * 128;
+    uint64_t const n2 = 1024 * 512;
     uint64_t const m = 1024 * 4;
 
     // Just bench AMX
