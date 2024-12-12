@@ -15,6 +15,7 @@ g++ -O3 \
     perf_amx.cc \
     -ldnnl \
     -fomit-frame-pointer \
+    -fopenmp \
     -lopenblas \
     -march=native \
     -o ${BINARY_DIR}/perf_amx

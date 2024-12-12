@@ -14,10 +14,6 @@
 #define PORTABLE_ALIGN64 __declspec(align(64))
 #endif
 
-namespace avs {
-
-using vecf32_t = std::vector<float>;
-using matf32_t = std::vector<std::vector<float>>;
 using tag = dnnl::memory::format_tag;
 using dt = dnnl::memory::data_type;
 
@@ -58,7 +54,6 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
 static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
                       const float *a, const float *b,
                       dnnl::engine &engine, dnnl::stream &stream) {
-  avs::vecf32_t dst(r1 * r2, 0.0f);
   dnnl::memory::dims a_dims = {r1, c};
   dnnl::memory::dims b_dims = {c, r2};
   dnnl::memory::dims c_dims = {r1, r2};
@@ -194,18 +189,13 @@ inner_product_avx512(const void *vec1, const void *vec2, int32_t const &dim) {
     return sum;
 }
 
-static avs::vecf32_t ip_distance_avx512(const float* query,
+static void ip_distance_avx512(const float* query,
                                         const float* data,
                                         int32_t data_size,
                                         int32_t dim,
                                         dnnl::engine &engine,
                                         dnnl::stream &stream) {
-  avs::vecf32_t result(data_size);
   for (int32_t i = 0; i < data_size; i++) {
-    auto d = inner_product_avx512(query, data + i * dim, dim);
-    result[i] = d;
+    inner_product_avx512(query, data + i * dim, dim);
   }
-  return result;
 }
-
-} // namespace avs
