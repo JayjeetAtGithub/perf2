@@ -15,6 +15,8 @@
 #define PORTABLE_ALIGN64 __declspec(align(64))
 #endif
 
+#define ITERATIONS 10
+
 using tag = dnnl::memory::format_tag;
 using dt = dnnl::memory::data_type;
 using bf16 = std::bfloat16_t;
@@ -77,11 +79,15 @@ static auto amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
   args.insert({DNNL_ARG_WEIGHTS, b_mem});
   args.insert({DNNL_ARG_DST, c_mem});
 
-  auto start = std::chrono::high_resolution_clock::now();
-  prim.execute(stream, args);
-  stream.wait();
-  auto end = std::chrono::high_resolution_clock::now();
-  return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  int64_t diff = 0;
+  for (int32_t i = 0; i < ITERATIONS; i++) {
+    auto start = std::chrono::high_resolution_clock::now();
+    prim.execute(stream, args);
+    stream.wait();
+    auto end = std::chrono::high_resolution_clock::now();
+    diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  }
+  return diff;
 }
 
 static auto amx_inner_product(int32_t const &n, int32_t const &oc,
@@ -111,11 +117,15 @@ static auto amx_inner_product(int32_t const &n, int32_t const &oc,
   args.insert({DNNL_ARG_WEIGHTS, w_mem});
   args.insert({DNNL_ARG_DST, dst_mem});
 
-  auto start = std::chrono::high_resolution_clock::now();
-  prim.execute(stream, args);
-  stream.wait();
-  auto end = std::chrono::high_resolution_clock::now();
-  return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  int64_t diff = 0;
+  for (int32_t i = 0; i < ITERATIONS; i++) {
+    auto start = std::chrono::high_resolution_clock::now();
+    prim.execute(stream, args);
+    stream.wait();
+    auto end = std::chrono::high_resolution_clock::now();
+    diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+  }
+  return diff;
 }
 
 static float inner_product(void const *vec1, void const *vec2,
