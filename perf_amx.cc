@@ -135,7 +135,7 @@ void run_bench_rect_matrix() {
   uint64_t const m = 1024;
 
   // Just bench AMX
-  std::vector<uint64_t> n1s = {64,   128,  256,   512,   1024, 2048,
+  std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
                                4096, 8192, 16384, 32768};
   for (auto n1 : n1s) {
     bench.run_ip(n1, n2, m);
