@@ -116,9 +116,13 @@ void run_bench_sq_matrix() {
   // Just bench AMX
   std::vector<uint64_t> sizes = {64,   128,  256,  512,   1024,
                                  2048, 4096, 8192, 16384, 32768};
-  sizes.for_each([&](uint64_t size) { bench.run_gemm(size, size, size); });
+  std::for_each(sizes.begin(), sizes.end(), [&](uint64_t size) {
+    bench.run_ip(size, size, size);
+  });
   bench.print_results();
-  sizes.for_each([&](uint64_t size) { bench.run_gemm(size, size, size); });
+  std::for_each(sizes.begin(), sizes.end(), [&](uint64_t size) {
+    bench.run_gemm(size, size, size);
+  });
   bench.print_results();
 }
 
@@ -134,7 +138,9 @@ void run_bench_rect_matrix() {
   // Just bench AMX
   std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
                                4096, 8192, 16384, 32768};
-  n1s.for_each([&](uint64_t n1) { bench.run_gemm(n1, n2, m); });
+  std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
+    bench.run_ip(n1, n2, m);
+  });
   bench.print_results();
 }
 
