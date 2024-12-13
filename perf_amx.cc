@@ -19,7 +19,7 @@ public:
   pprinter *pt;
   std::vector<std::string> headers = {
       "Mode",       "N1 / N2 / M",   "Data size (MiB)",
-      "Total FLOP", "Duration (us)", "GFLOPS"};
+      "Total FLOP", "Duration (ns)", "GFLOPS"};
 
   Benchmark(dnnl::engine engine, dnnl::stream stream)
       : engine(engine), stream(stream) {
