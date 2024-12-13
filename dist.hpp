@@ -60,23 +60,15 @@ static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
   dnnl::memory::dims b_dims = {c, r2};
   dnnl::memory::dims c_dims = {r1, r2};
 
-  auto a_in_md = dnnl::memory::desc(a_dims, dt::f32, tag::ab);
-  auto b_in_md = dnnl::memory::desc(b_dims, dt::f32, tag::ab);
-  auto c_out_md = dnnl::memory::desc(c_dims, dt::f32, tag::ab);
-  auto a_in_mem = dnnl::memory(a_in_md, engine);
-  auto b_in_mem = dnnl::memory(b_in_md, engine);
-  write_to_dnnl_memory(a, a_in_mem);
-  write_to_dnnl_memory(b, b_in_mem);
+  auto a_md = dnnl::memory::desc(a_dims, dt::bf16, tag::ab);
+  auto b_md = dnnl::memory::desc(b_dims, dt::bf16, tag::ab);
+  auto c_md = dnnl::memory::desc(c_dims, dt::bf16, tag::ab);
+  auto a_mem = dnnl::memory(a_md, engine);
+  auto b_mem = dnnl::memory(b_md, engine);
+  write_to_dnnl_memory(a, a_mem);
+  write_to_dnnl_memory(b, b_mem);
 
-  auto a_md = dnnl::memory::desc(a_dims, dt::bf16, tag::any);
-  auto b_md = dnnl::memory::desc(b_dims, dt::bf16, tag::any);
-  auto c_md = dnnl::memory::desc(c_dims, dt::bf16, tag::any);
   auto pd = dnnl::matmul::primitive_desc(engine, a_md, b_md, c_md);
-
-  auto a_mem = dnnl::memory(pd.src_desc(), engine);
-  dnnl::reorder(a_in_mem, a_mem).execute(stream, a_in_mem, a_mem);
-  auto b_mem = dnnl::memory(pd.weights_desc(), engine);
-  dnnl::reorder(b_in_mem, b_mem).execute(stream, b_in_mem, b_mem);
   auto c_mem = dnnl::memory(pd.dst_desc(), engine);
 
   auto prim = dnnl::matmul(pd);
