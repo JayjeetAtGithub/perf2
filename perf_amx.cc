@@ -11,6 +11,8 @@ using pprinter =
 
 #define OMP_PARALLEL_FOR _Pragma("omp parallel for")
 #define MEGA 1024 * 1024
+#define L2_CACHE 96 * 1024 * 1024
+#define L3_CACHE 90 * 1024 * 1024
 
 class Benchmark {
 public:
@@ -59,7 +61,7 @@ public:
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
     {
-      auto dur = amx_inner_product(
+      int64_t dur = amx_inner_product(
         N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
           ((double)(total_flop)) / ((double)(dur));
@@ -96,7 +98,7 @@ public:
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
 
     {
-      auto dur = amx_matmul(
+      int64_t dur = amx_matmul(
         N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
           ((double)(total_flop)) / ((double)(dur));
@@ -114,13 +116,9 @@ void run_bench_sq_matrix() {
   // Just bench AMX
   std::vector<uint64_t> sizes = {64,   128,  256,  512,   1024,
                                  2048, 4096, 8192, 16384, 32768};
-  for (auto size : sizes) {
-    bench.run_ip(size, size, size);
-  }
+  sizes.for_each([&](uint64_t size) { bench.run_gemm(size, size, size); });
   bench.print_results();
-  for (auto size : sizes) {
-    bench.run_gemm(size, size, size);
-  }
+  sizes.for_each([&](uint64_t size) { bench.run_gemm(size, size, size); });
   bench.print_results();
 }
 
@@ -136,9 +134,7 @@ void run_bench_rect_matrix() {
   // Just bench AMX
   std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
                                4096, 8192, 16384, 32768};
-  for (auto n1 : n1s) {
-    bench.run_ip(n1, n2, m);
-  }
+  n1s.for_each([&](uint64_t n1) { bench.run_gemm(n1, n2, m); });
   bench.print_results();
 }
 

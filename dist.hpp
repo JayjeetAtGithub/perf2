@@ -55,7 +55,7 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
   }
 }
 
-static auto amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
+static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
                        const bf16 *a, const bf16 *b, dnnl::engine &engine,
                        dnnl::stream &stream) {
   dnnl::memory::dims a_dims = {r1, c};
@@ -90,7 +90,7 @@ static auto amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
   return diff;
 }
 
-static auto amx_inner_product(int32_t const &n, int32_t const &oc,
+static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
                               int32_t const &ic, const bf16 *s, const bf16 *w,
                               dnnl::engine &engine, dnnl::stream &stream) {
 
