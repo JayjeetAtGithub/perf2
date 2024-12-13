@@ -37,7 +37,7 @@ public:
     std::vector<bf16> mat_a(N1 * M);
     std::vector<bf16> mat_b(N2 * M);
 
-    std::mt19937 rng;
+    std::mt19937_64 rng;
     rng.seed(47);
     std::uniform_real_distribution<float> distrib;
 
