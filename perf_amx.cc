@@ -13,6 +13,11 @@ using pprinter =
 #define L2_CACHE 96 * 1024 * 1024
 #define L3_CACHE 90 * 1024 * 1024
 
+double calc_data_size(uint64_t N1, uint64_t N2, uint64_t M) {
+  return ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) /
+         ((double)(2 << 19));
+}
+
 class Benchmark {
 public:
   dnnl::engine engine;
@@ -54,8 +59,7 @@ public:
       }
     }
 
-    double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / (2 << 19);
+    double data_size = calc_data_size(N1, N2, M);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -90,8 +94,7 @@ public:
       }
     }
 
-    double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / (2 << 19);
+    double data_size = calc_data_size(N1, N2, M);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
