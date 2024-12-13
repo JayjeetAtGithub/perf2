@@ -53,7 +53,7 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
   }
 }
 
-static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
+static auto amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
                        const bf16 *a, const bf16 *b, dnnl::engine &engine,
                        dnnl::stream &stream) {
   dnnl::memory::dims a_dims = {r1, c};
@@ -76,8 +76,12 @@ static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
   args.insert({DNNL_ARG_SRC, a_mem});
   args.insert({DNNL_ARG_WEIGHTS, b_mem});
   args.insert({DNNL_ARG_DST, c_mem});
+
+  auto start = std::chrono::high_resolution_clock::now();
   prim.execute(stream, args);
   stream.wait();
+  auto end = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 }
 
 static auto amx_inner_product(int32_t const &n, int32_t const &oc,

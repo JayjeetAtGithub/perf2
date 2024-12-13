@@ -97,12 +97,8 @@ public:
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
 
     {
-      auto start = std::chrono::high_resolution_clock::now();
-      amx_matmul(N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
-      auto end = std::chrono::high_resolution_clock::now();
-      auto dur =
-          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-              .count();
+      auto dur = amx_matmul(
+        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
           ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("GEMM / AMX", dims, data_size, total_flop, dur, gflops);
