@@ -15,7 +15,6 @@ using pprinter =
 
 class Benchmark {
 public:
-  bool only_amx = false;
   dnnl::engine engine;
   dnnl::stream stream;
   pprinter *pt;
@@ -34,8 +33,8 @@ public:
   }
 
   void run_ip(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<float> mat_a(N1 * M);
-    std::vector<float> mat_b(N2 * M);
+    std::vector<bf16> mat_a(N1 * M);
+    std::vector<bf16> mat_b(N2 * M);
 
     std::mt19937 rng;
     rng.seed(47);
@@ -44,45 +43,25 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = distrib(rng);
+        mat_a[i * M + j] = (bf16)distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N2; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_b[i * M + j] = distrib(rng);
+        mat_b[i * M + j] = (bf16)distrib(rng);
       }
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) / MILLION;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / MILLION;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
-
-    if (!only_amx) {
-      auto start = std::chrono::high_resolution_clock::now();
-      for (uint64_t i = 0; i < N1; i++) {
-        ip_distance_avx512(mat_a.data() + i * M, mat_b.data(), N2, M, engine,
-                           stream);
-      }
-      auto end = std::chrono::high_resolution_clock::now();
-      auto dur =
-          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-              .count();
-      double gflops =
-          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
-      pt->addRow("IP / AVX512", dims, data_size, total_flop, dur, gflops);
-    }
-
     {
-      auto start = std::chrono::high_resolution_clock::now();
-      amx_inner_product(N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
-      auto end = std::chrono::high_resolution_clock::now();
-      auto dur =
-          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-              .count();
+      auto dur = amx_inner_product(
+        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
           ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("IP / AMX", dims, data_size, total_flop, dur, gflops);
@@ -90,8 +69,8 @@ public:
   }
 
   void run_gemm(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<float> mat_a(N1 * M);
-    std::vector<float> mat_b(M * N2);
+    std::vector<bf16> mat_a(N1 * M);
+    std::vector<bf16> mat_b(M * N2);
 
     std::mt19937 rng;
     rng.seed(47);
@@ -100,30 +79,26 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = distrib(rng);
+        mat_a[i * M + j] = (bf16)distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < M; i++) {
       for (uint64_t j = 0; j < N2; j++) {
-        mat_b[i * N2 + j] = distrib(rng);
+        mat_b[i * N2 + j] = (bf16)distrib(rng);
       }
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(float)) + (double)(M * N2 * sizeof(float))) / MILLION;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / MILLION;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
 
     {
-      auto start = std::chrono::high_resolution_clock::now();
-      amx_matmul(N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
-      auto end = std::chrono::high_resolution_clock::now();
-      auto dur =
-          std::chrono::duration_cast<std::chrono::microseconds>(end - start)
-              .count();
+      auto dur = amx_matmul(
+        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
           ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("GEMM / AMX", dims, data_size, total_flop, dur, gflops);
@@ -138,7 +113,6 @@ void run_bench_sq_matrix() {
   Benchmark bench(engine, stream);
 
   // Just bench AMX
-  bench.only_amx = true;
   std::vector<uint64_t> sizes = {64,   128,  256,  512,   1024,
                                  2048, 4096, 8192, 16384, 32768};
   for (auto size : sizes) {
@@ -157,13 +131,12 @@ void run_bench_rect_matrix() {
 
   Benchmark bench(engine, stream);
 
-  uint64_t const n2 = 1024 * 1024 * 2;
-  uint64_t const m = 1024 * 2;
+  uint64_t const n2 = 1024 * 1024;
+  uint64_t const m = 1024;
 
   // Just bench AMX
-  bench.only_amx = true;
-  std::vector<uint64_t> n1s = {64,   128,  256,   512,   1024, 2048,
-                               4096, 8192, 16384, 32768, 65536};
+  std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
+                               4096, 8192, 16384, 32768};
   for (auto n1 : n1s) {
     bench.run_ip(n1, n2, m);
   }
