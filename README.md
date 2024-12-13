@@ -1,4 +1,4 @@
-# bench
+# perf2
 
 ## 2D Tile Registers
 

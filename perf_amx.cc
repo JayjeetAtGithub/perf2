@@ -54,7 +54,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * 4) + (double)(N2 * M * 4)) / pow(10, 6);
+        ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) / pow(10, 6);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -110,7 +110,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * 4) + (double)(M * N2 * 4)) / pow(10, 6);
+        ((double)(N1 * M * sizeof(float)) + (double)(M * N2 * sizeof(float))) / pow(10, 6);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
