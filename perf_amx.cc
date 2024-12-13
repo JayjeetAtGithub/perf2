@@ -10,7 +10,6 @@ using pprinter =
     VariadicTable<std::string, std::string, double, double, double, double>;
 
 #define OMP_PARALLEL_FOR _Pragma("omp parallel for")
-#define MEGA 1024 * 1024
 #define L2_CACHE 96 * 1024 * 1024
 #define L3_CACHE 90 * 1024 * 1024
 
@@ -56,7 +55,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / MEGA;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / (2 << 19);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -92,7 +91,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / MEGA;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / (2 << 19);
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
