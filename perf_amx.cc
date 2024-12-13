@@ -10,8 +10,7 @@ using pprinter =
     VariadicTable<std::string, std::string, double, double, double, double>;
 
 #define OMP_PARALLEL_FOR _Pragma("omp parallel for")
-#define MILLION pow(10, 6)
-#define BILLION pow(10, 9)
+#define POW_10_6 pow(10, 6)
 
 class Benchmark {
 public:
@@ -55,7 +54,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / MILLION;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) / POW_10_6;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -63,7 +62,7 @@ public:
       auto dur = amx_inner_product(
         N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
-          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
+          ((double)(total_flop)) / ((double)(dur));
       pt->addRow("IP / AMX", dims, data_size, total_flop, dur, gflops);
     }
   }
@@ -91,7 +90,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / MILLION;
+        ((double)(N1 * M * sizeof(bf16)) + (double)(M * N2 * sizeof(bf16))) / POW_10_6;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -100,7 +99,7 @@ public:
       auto dur = amx_matmul(
         N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
       double gflops =
-          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
+          ((double)(total_flop)) / ((double)(dur));
       pt->addRow("GEMM / AMX", dims, data_size, total_flop, dur, gflops);
     }
   }

@@ -85,7 +85,7 @@ static auto amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
     prim.execute(stream, args);
     stream.wait();
     auto end = std::chrono::high_resolution_clock::now();
-    diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    diff = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
   }
   return diff;
 }
@@ -123,7 +123,7 @@ static auto amx_inner_product(int32_t const &n, int32_t const &oc,
     prim.execute(stream, args);
     stream.wait();
     auto end = std::chrono::high_resolution_clock::now();
-    diff = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
+    diff = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
   }
   return diff;
 }
