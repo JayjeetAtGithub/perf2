@@ -80,7 +80,7 @@ static void amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
   stream.wait();
 }
 
-static void amx_inner_product(int32_t const &n, int32_t const &oc,
+static auto amx_inner_product(int32_t const &n, int32_t const &oc,
                               int32_t const &ic, const bf16 *s, const bf16 *w,
                               dnnl::engine &engine, dnnl::stream &stream) {
 
@@ -106,8 +106,12 @@ static void amx_inner_product(int32_t const &n, int32_t const &oc,
   args.insert({DNNL_ARG_SRC, s_mem});
   args.insert({DNNL_ARG_WEIGHTS, w_mem});
   args.insert({DNNL_ARG_DST, dst_mem});
+
+  auto s = std::chrono::high_resolution_clock::now();
   prim.execute(stream, args);
   stream.wait();
+  auto e = std::chrono::high_resolution_clock::now();
+  return std::chrono::duration_cast<std::chrono::microseconds>(e - s).count();
 }
 
 static float inner_product(void const *vec1, void const *vec2,
