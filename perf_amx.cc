@@ -10,6 +10,8 @@ using pprinter =
     VariadicTable<std::string, std::string, double, double, double, double>;
 
 #define OMP_PARALLEL_FOR _Pragma("omp parallel for")
+#define MILLION pow(10, 6)
+#define BILLION pow(10, 9)
 
 class Benchmark {
 public:
@@ -54,7 +56,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) / pow(10, 6);
+        ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) / MILLION;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -70,7 +72,7 @@ public:
           std::chrono::duration_cast<std::chrono::microseconds>(end - start)
               .count();
       double gflops =
-          ((double)(total_flop / pow(10, 9))) / ((double)(dur / pow(10, 6)));
+          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("IP / AVX512", dims, data_size, total_flop, dur, gflops);
     }
 
@@ -82,7 +84,7 @@ public:
           std::chrono::duration_cast<std::chrono::microseconds>(end - start)
               .count();
       double gflops =
-          ((double)(total_flop / pow(10, 9))) / ((double)(dur / pow(10, 6)));
+          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("IP / AMX", dims, data_size, total_flop, dur, gflops);
     }
   }
@@ -110,7 +112,7 @@ public:
     }
 
     double data_size =
-        ((double)(N1 * M * sizeof(float)) + (double)(M * N2 * sizeof(float))) / pow(10, 6);
+        ((double)(N1 * M * sizeof(float)) + (double)(M * N2 * sizeof(float))) / MILLION;
     uint64_t total_flop = (N1 * N2) * (2 * M - 1);
     std::string dims =
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
@@ -123,7 +125,7 @@ public:
           std::chrono::duration_cast<std::chrono::microseconds>(end - start)
               .count();
       double gflops =
-          ((double)(total_flop / pow(10, 9))) / ((double)(dur / pow(10, 6)));
+          ((double)(total_flop / BILLION)) / ((double)(dur / MILLION));
       pt->addRow("GEMM / AMX", dims, data_size, total_flop, dur, gflops);
     }
   }
