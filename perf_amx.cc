@@ -134,14 +134,19 @@ void run_bench_rect_matrix() {
 
   Benchmark bench(engine, stream);
 
-  uint64_t const n2 = 1024 * 1024;
+  uint64_t const n2_base = 1024 * 1024;
   uint64_t const m = 1024;
 
   // Just bench AMX
   std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
                                4096, 8192, 16384, 32768};
+  std::vector<uint64_t> n2_multipliers = {1, 2, 4, 8};
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
-    bench.run_ip(n1, n2, m);
+    std::for_each(n2_multipliers.begin(), n2_multipliers.end(),
+                  [&](uint64_t n2_multiplier) {
+                    uint64_t n2 = n2_base * n2_multiplier;
+                    bench.run_ip(n1, n2, m);
+                  });
   });
   bench.print_results();
 }
