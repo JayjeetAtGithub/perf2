@@ -57,7 +57,7 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
 
 static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
                        const bf16 *a, const bf16 *b, dnnl::engine &engine,
-                       dnnl::stream &stream) {
+                       dnnl::stream &stream, bool debug) {
   dnnl::memory::dims a_dims = {r1, c};
   dnnl::memory::dims b_dims = {c, r2};
   dnnl::memory::dims c_dims = {r1, r2};
@@ -92,7 +92,7 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 
 static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
                               int32_t const &ic, const bf16 *s, const bf16 *w,
-                              dnnl::engine &engine, dnnl::stream &stream) {
+                              dnnl::engine &engine, dnnl::stream &stream, bool debug) {
 
   dnnl::memory::dims s_dims = {n, ic};
   dnnl::memory::dims w_dims = {oc, ic};
@@ -124,6 +124,9 @@ static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
     stream.wait();
     auto end = std::chrono::high_resolution_clock::now();
     diff = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    if (debug) {
+      std::cout << "AMX inner product: itr #" << i << " :"  << diff << " ns" << std::endl;
+    }
   }
   return diff;
 }

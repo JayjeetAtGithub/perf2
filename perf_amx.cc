@@ -23,6 +23,7 @@ public:
   dnnl::engine engine;
   dnnl::stream stream;
   pprinter *pt;
+  bool debug;
   std::vector<std::string> headers = {
       "Mode",       "N1 / N2 / M",   "Data size (MiB)",
       "Total FLOP", "Duration (ns)", "GFLOPS"};
@@ -65,7 +66,7 @@ public:
         std::to_string(N1) + "/" + std::to_string(N2) + "/" + std::to_string(M);
     {
       int64_t dur = amx_inner_product(
-        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
+        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream, debug);
       double gflops =
           ((double)(total_flop)) / ((double)(dur));
       pt->addRow("IP / AMX", dims, data_size, total_flop, dur, gflops);
@@ -101,7 +102,7 @@ public:
 
     {
       int64_t dur = amx_matmul(
-        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream);
+        N1, N2, M, mat_a.data(), mat_b.data(), engine, stream, debug);
       double gflops =
           ((double)(total_flop)) / ((double)(dur));
       pt->addRow("GEMM / AMX", dims, data_size, total_flop, dur, gflops);
@@ -152,6 +153,14 @@ void run_bench_rect_matrix() {
 }
 
 int main(int argc, char **argv) {
+  CLI::App app{"Intel AMX Benchmark"};
+  argv = app.ensure_utf8(argv);
+
+  bool debug = 0;
+  app.add_option("-d,--debug", debug, "Enable debug mode");
+
+  CLI11_PARSE(app, argc, argv);
+
   run_bench_sq_matrix();
   run_bench_rect_matrix();
 }
