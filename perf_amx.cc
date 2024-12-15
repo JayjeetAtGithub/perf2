@@ -139,8 +139,7 @@ void run_bench_rect_matrix() {
   uint64_t const m = 1024;
 
   // Just bench AMX
-  std::vector<uint64_t> n1s = {32, 64,   128,  256,   512,   1024, 2048,
-                               4096, 8192, 16384, 32768};
+  std::vector<uint64_t> n1s = {32, 64};
   std::vector<uint64_t> n2_multipliers = {1, 2, 4, 8};
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
     std::for_each(n2_multipliers.begin(), n2_multipliers.end(),
