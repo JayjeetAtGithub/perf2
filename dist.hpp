@@ -125,7 +125,7 @@ static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
     auto end = std::chrono::high_resolution_clock::now();
     diff = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
     if (debug) {
-      std::cout << "AMX inner product: itr #" << i << " :"  << diff << " ns" << std::endl;
+      std::cout << "ip: dims: " << n << "," << oc << "," << ic << ": itr #" << i << " :"  << diff << " ns" << std::endl;
     }
   }
   return diff;
