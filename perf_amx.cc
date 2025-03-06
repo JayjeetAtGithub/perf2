@@ -14,7 +14,7 @@ using pprinter =
 #define L3_CACHE 90 * 1024 * 1024
 
 double calc_data_size(uint64_t N1, uint64_t N2, uint64_t M) {
-  return ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) /
+  return ((double)(N1 * M * sizeof(__bf16)) + (double)(N2 * M * sizeof(__bf16))) /
          ((double)(2 << 19));
 }
 
@@ -40,8 +40,8 @@ public:
   }
 
   void run_ip(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<bf16> mat_a(N1 * M);
-    std::vector<bf16> mat_b(N2 * M);
+    std::vector<__bf16> mat_a(N1 * M);
+    std::vector<__bf16> mat_b(N2 * M);
 
     std::mt19937_64 rng;
     rng.seed(47);
@@ -50,14 +50,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (bf16)distrib(rng);
+        mat_a[i * M + j] = (__bf16)distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N2; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_b[i * M + j] = (bf16)distrib(rng);
+        mat_b[i * M + j] = (__bf16)distrib(rng);
       }
     }
 
@@ -75,8 +75,8 @@ public:
   }
 
   void run_gemm(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<bf16> mat_a(N1 * M);
-    std::vector<bf16> mat_b(M * N2);
+    std::vector<__bf16> mat_a(N1 * M);
+    std::vector<__bf16> mat_b(M * N2);
 
     std::mt19937 rng;
     rng.seed(47);
@@ -85,14 +85,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (bf16)distrib(rng);
+        mat_a[i * M + j] = (__bf16)distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < M; i++) {
       for (uint64_t j = 0; j < N2; j++) {
-        mat_b[i * N2 + j] = (bf16)distrib(rng);
+        mat_b[i * N2 + j] = (__bf16)distrib(rng);
       }
     }
 

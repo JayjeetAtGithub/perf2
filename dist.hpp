@@ -18,7 +18,6 @@
 
 using tag = dnnl::memory::format_tag;
 using dt = dnnl::memory::data_type;
-using bf16 = __bf16;
 
 static bool is_amxbf16_supported() {
   unsigned int eax, ebx, ecx, edx;
@@ -55,7 +54,7 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
 }
 
 static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
-                       const bf16 *a, const bf16 *b, dnnl::engine &engine,
+                       const __bf16 *a, const __bf16 *b, dnnl::engine &engine,
                        dnnl::stream &stream, bool debug) {
   dnnl::memory::dims a_dims = {r1, c};
   dnnl::memory::dims b_dims = {c, r2};
@@ -63,7 +62,7 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 
   auto a_md = dnnl::memory::desc(a_dims, dt::bf16, tag::ab);
   auto b_md = dnnl::memory::desc(b_dims, dt::bf16, tag::ab);
-  auto c_md = dnnl::memory::desc(c_dims, dt::bf16, tag::ab);
+  auto c_md = dnnl::memory::desc(c_dims, dt::f32, tag::ab);
   auto a_mem = dnnl::memory(a_md, engine);
   auto b_mem = dnnl::memory(b_md, engine);
   write_to_dnnl_memory(a, a_mem);
@@ -93,7 +92,7 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 }
 
 static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
-                              int32_t const &ic, const bf16 *s, const bf16 *w,
+                              int32_t const &ic, const __bf16 *s, const __bf16 *w,
                               dnnl::engine &engine, dnnl::stream &stream, bool debug) {
 
   dnnl::memory::dims s_dims = {n, ic};
