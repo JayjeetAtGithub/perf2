@@ -134,9 +134,9 @@ void run_bench_rect_matrix(bool debug) {
 
   Benchmark bench(engine, stream, debug);
 
-  std::vector<uint64_t> n1s = {8192, 10000};
-  std::vector<uint64_t> n2s = {1024*1024, 1000000};
-  std::vector<uint64_t> ms = {256, 200};
+  std::vector<uint64_t> n1s = {10000};
+  std::vector<uint64_t> n2s = {1000000};
+  std::vector<uint64_t> ms = {200, 1572};
 
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
     std::for_each(n2s.begin(), n2s.end(),
