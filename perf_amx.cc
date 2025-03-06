@@ -143,7 +143,7 @@ void run_bench_rect_matrix(bool debug) {
       [&](uint64_t n2) {
         std::for_each(ms.begin(), ms.end(),
           [&](uint64_t m) {
-            bench.run_gemm(n1, n2, m);
+            bench.run_ip(n1, n2, m);
           });
       });
   });
