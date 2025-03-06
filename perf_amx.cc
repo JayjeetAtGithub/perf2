@@ -14,7 +14,7 @@ using pprinter =
 #define L3_CACHE 90 * 1024 * 1024
 
 double calc_data_size(uint64_t N1, uint64_t N2, uint64_t M) {
-  return ((double)(N1 * M * sizeof(__bf16)) + (double)(N2 * M * sizeof(__bf16))) /
+  return ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) /
          ((double)(2 << 19));
 }
 
@@ -40,12 +40,12 @@ public:
   }
 
   void run_ip(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<__bf16> mat_a(N1 * M);
-    std::vector<__bf16> mat_b(N2 * M);
+    std::vector<float> mat_a(N1 * M);
+    std::vector<float> mat_b(N2 * M);
 
     std::mt19937_64 rng;
     rng.seed(47);
-    std::uniform_real_distribution<__bf16> distrib;
+    std::uniform_real_distribution<float> distrib;
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
@@ -75,12 +75,12 @@ public:
   }
 
   void run_gemm(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<__bf16> mat_a(N1 * M);
-    std::vector<__bf16> mat_b(M * N2);
+    std::vector<float> mat_a(N1 * M);
+    std::vector<float> mat_b(M * N2);
 
     std::mt19937 rng;
     rng.seed(47);
-    std::uniform_real_distribution<__bf16> distrib;
+    std::uniform_real_distribution<float> distrib;
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {

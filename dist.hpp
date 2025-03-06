@@ -27,19 +27,6 @@ static bool is_amxbf16_supported() {
   return edx & (1 << 22);
 }
 
-static void read_from_dnnl_memory(void *handle, dnnl::memory &mem) {
-  dnnl::engine eng = mem.get_engine();
-  int32_t size = mem.get_desc().get_size();
-  if (!handle)
-    throw std::runtime_error("handle is nullptr.");
-  uint8_t *src = static_cast<uint8_t *>(mem.get_data_handle());
-  if (!src)
-    throw std::runtime_error("get_data_handle returned nullptr.");
-  for (int32_t i = 0; i < size; ++i) {
-    ((uint8_t *)handle)[i] = src[i];
-  }
-}
-
 static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
   dnnl::engine eng = mem.get_engine();
   int32_t size = mem.get_desc().get_size();
@@ -54,7 +41,7 @@ static void write_to_dnnl_memory(void const *handle, dnnl::memory &mem) {
 }
 
 static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c,
-                       const __bf16 *a, const __bf16 *b, dnnl::engine &engine,
+                       const float *a, const float *b, dnnl::engine &engine,
                        dnnl::stream &stream, bool debug) {
   dnnl::memory::dims a_dims = {r1, c};
   dnnl::memory::dims b_dims = {c, r2};
@@ -92,25 +79,33 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 }
 
 static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
-                              int32_t const &ic, const __bf16 *s, const __bf16 *w,
+                              int32_t const &ic, const float *s, const float *w,
                               dnnl::engine &engine, dnnl::stream &stream, bool debug) {
-
   dnnl::memory::dims s_dims = {n, ic};
   dnnl::memory::dims w_dims = {oc, ic};
   dnnl::memory::dims dst_dims = {n, oc};
 
-  auto s_md = dnnl::memory::desc(s_dims, dt::bf16, tag::ab);
-  auto w_md = dnnl::memory::desc(w_dims, dt::bf16, tag::ab);
-  auto dst_md = dnnl::memory::desc(dst_dims, dt::bf16, tag::ab);
-  
-  auto s_mem = dnnl::memory(s_md, engine);
-  auto w_mem = dnnl::memory(w_md, engine);
-  write_to_dnnl_memory(s, s_mem);
-  write_to_dnnl_memory(w, w_mem);
+  auto s_in_md = dnnl::memory::desc(s_dims, dt::f32, tag::ab);
+  auto w_in_md = dnnl::memory::desc(w_dims, dt::f32, tag::ab);
+  auto dst_out_md = dnnl::memory::desc(dst_dims, dt::f32, tag::ab);
+  auto s_in_mem = dnnl::memory(s_in_md, engine);
+  auto w_in_mem = dnnl::memory(w_in_md, engine);
+
+  write_to_dnnl_memory(src.data(), s_in_mem);
+  write_to_dnnl_memory(w.data(), w_in_mem);
+
+  auto s_md = dnnl::memory::desc(s_dims, dt::bf16, tag::any);
+  auto w_md = dnnl::memory::desc(w_dims, dt::bf16, tag::any);
 
   auto pd = dnnl::inner_product_forward::primitive_desc(
-      engine, dnnl::prop_kind::forward_training, s_md, w_md, dst_md);
+      engine, dnnl::prop_kind::forward_training, s_md, w_md, dst_out_md);
+  
+  auto s_mem = dnnl::memory(pd.src_desc(), engine);
+  auto w_mem = dnnl::memory(pd.weights_desc(), engine);
   auto dst_mem = dnnl::memory(pd.dst_desc(), engine);
+
+  dnnl::reorder(s_in_mem, s_mem).execute(stream, s_in_mem, s_mem);
+  dnnl::reorder(w_in_mem, w_mem).execute(stream, w_in_mem, w_mem);
 
   auto prim = dnnl::inner_product_forward(pd);
   std::unordered_map<int32_t, dnnl::memory> args;
