@@ -134,14 +134,18 @@ void run_bench_rect_matrix(bool debug) {
 
   Benchmark bench(engine, stream, debug);
 
-  uint64_t const m = 200;
   std::vector<uint64_t> n1s = {8192, 10000};
   std::vector<uint64_t> n2s = {1024*1024, 1000000};
+  std::vector<uint64_t> ms = {256, 200};
+
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
     std::for_each(n2s.begin(), n2s.end(),
-                  [&](uint64_t n2) {
-                    bench.run_ip(n1, n2, m);
-                  });
+      [&](uint64_t n2) {
+        std::for_each(ms.begin(), ms.end(),
+          [&](uint64_t m) {
+            bench.run_gemm(n1, n2, m);
+          });
+      });
   });
   bench.print_results();
 }
