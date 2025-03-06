@@ -50,14 +50,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (__bf16)distrib(rng);
+        mat_a[i * M + j] = distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N2; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_b[i * M + j] = (__bf16)distrib(rng);
+        mat_b[i * M + j] = distrib(rng);
       }
     }
 
@@ -85,14 +85,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (__bf16)distrib(rng);
+        mat_a[i * M + j] = distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < M; i++) {
       for (uint64_t j = 0; j < N2; j++) {
-        mat_b[i * N2 + j] = (__bf16)distrib(rng);
+        mat_b[i * N2 + j] = distrib(rng);
       }
     }
 
