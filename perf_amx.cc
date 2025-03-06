@@ -137,11 +137,11 @@ void run_bench_rect_matrix(bool debug) {
   Benchmark bench(engine, stream, debug);
 
   uint64_t const n2_base = 1024 * 1024;
-  uint64_t const m = 1024;
+  uint64_t const m = 256;
 
   // Just bench AMX
-  std::vector<uint64_t> n1s = {32, 64};
-  std::vector<uint64_t> n2_multipliers = {1, 2, 4, 8};
+  std::vector<uint64_t> n1s = {8192};
+  std::vector<uint64_t> n2_multipliers = {1};
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
     std::for_each(n2_multipliers.begin(), n2_multipliers.end(),
                   [&](uint64_t n2_multiplier) {
