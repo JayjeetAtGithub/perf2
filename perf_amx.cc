@@ -22,14 +22,15 @@ class Benchmark {
 public:
   dnnl::engine engine;
   dnnl::stream stream;
-  pprinter *pt;
   bool debug;
+
+  pprinter *pt;
   std::vector<std::string> headers = {
       "Mode",       "N1 / N2 / M",   "Data size (MiB)",
       "Total FLOP", "Duration (ns)", "GFLOPS"};
 
-  Benchmark(dnnl::engine engine, dnnl::stream stream)
-      : engine(engine), stream(stream) {
+  Benchmark(dnnl::engine engine, dnnl::stream stream, bool debug)
+      : engine(engine), stream(stream), debug(debug) {
     pt = new pprinter(headers);
   }
 
@@ -110,11 +111,11 @@ public:
   }
 };
 
-void run_bench_sq_matrix() {
+void run_bench_sq_matrix(bool debug) {
   dnnl::engine engine(dnnl::engine::kind::cpu, 0);
   dnnl::stream stream(engine);
 
-  Benchmark bench(engine, stream);
+  Benchmark bench(engine, stream, debug);
 
   // Just bench AMX
   std::vector<uint64_t> sizes = {64,   128,  256,  512,   1024,
@@ -129,11 +130,11 @@ void run_bench_sq_matrix() {
   bench.print_results();
 }
 
-void run_bench_rect_matrix() {
+void run_bench_rect_matrix(bool debug) {
   dnnl::engine engine(dnnl::engine::kind::cpu, 0);
   dnnl::stream stream(engine);
 
-  Benchmark bench(engine, stream);
+  Benchmark bench(engine, stream, debug);
 
   uint64_t const n2_base = 1024 * 1024;
   uint64_t const m = 1024;
@@ -160,6 +161,6 @@ int main(int argc, char **argv) {
 
   CLI11_PARSE(app, argc, argv);
 
-  run_bench_sq_matrix();
-  run_bench_rect_matrix();
+  run_bench_sq_matrix(debug);
+  run_bench_rect_matrix(debug);
 }
