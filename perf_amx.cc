@@ -134,7 +134,7 @@ void run_bench_rect_matrix(bool debug) {
 
   Benchmark bench(engine, stream, debug);
 
-  std::vector<uint64_t> n1s = {10000};
+  std::vector<uint64_t> n1s = {32, 10000};
   std::vector<uint64_t> n2s = {1000000};
   std::vector<uint64_t> ms = {200, 1536, 3072};
 
