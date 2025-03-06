@@ -3,7 +3,6 @@
 #include <chrono>
 #include <immintrin.h>
 #include <unordered_map>
-#include <stdfloat>
 
 #include "oneapi/dnnl/dnnl.hpp"
 
@@ -19,7 +18,7 @@
 
 using tag = dnnl::memory::format_tag;
 using dt = dnnl::memory::data_type;
-using bf16 = std::bfloat16_t;
+using bf16 = __bf16;
 
 static bool is_amxbf16_supported() {
   unsigned int eax, ebx, ecx, edx;
