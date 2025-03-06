@@ -62,7 +62,7 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 
   auto a_md = dnnl::memory::desc(a_dims, dt::bf16, tag::ab);
   auto b_md = dnnl::memory::desc(b_dims, dt::bf16, tag::ab);
-  auto c_md = dnnl::memory::desc(c_dims, dt::f32, tag::ab);
+  auto c_md = dnnl::memory::desc(c_dims, dt::bf16, tag::ab);
   auto a_mem = dnnl::memory(a_md, engine);
   auto b_mem = dnnl::memory(b_md, engine);
   write_to_dnnl_memory(a, a_mem);
@@ -101,7 +101,7 @@ static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
 
   auto s_md = dnnl::memory::desc(s_dims, dt::bf16, tag::ab);
   auto w_md = dnnl::memory::desc(w_dims, dt::bf16, tag::ab);
-  auto dst_md = dnnl::memory::desc(dst_dims, dt::f32, tag::ab);
+  auto dst_md = dnnl::memory::desc(dst_dims, dt::bf16, tag::ab);
   
   auto s_mem = dnnl::memory(s_md, engine);
   auto w_mem = dnnl::memory(w_md, engine);
