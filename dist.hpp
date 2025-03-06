@@ -103,7 +103,7 @@ static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
 
   auto s_md = dnnl::memory::desc(s_dims, dt::bf16, tag::ab);
   auto w_md = dnnl::memory::desc(w_dims, dt::bf16, tag::ab);
-  auto dst_md = dnnl::memory::desc(dst_dims, dt::fp32, tag::ab);
+  auto dst_md = dnnl::memory::desc(dst_dims, dt::f32, tag::ab);
   
   auto s_mem = dnnl::memory(s_md, engine);
   auto w_mem = dnnl::memory(w_md, engine);
