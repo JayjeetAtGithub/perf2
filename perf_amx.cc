@@ -45,7 +45,7 @@ public:
 
     std::mt19937_64 rng;
     rng.seed(47);
-    std::uniform_real_distribution<float> distrib;
+    std::uniform_real_distribution<__bf16> distrib;
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
@@ -80,7 +80,7 @@ public:
 
     std::mt19937 rng;
     rng.seed(47);
-    std::uniform_real_distribution<float> distrib;
+    std::uniform_real_distribution<__bf16> distrib;
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
