@@ -161,6 +161,6 @@ int main(int argc, char **argv) {
 
   CLI11_PARSE(app, argc, argv);
 
-  run_bench_sq_matrix(debug);
+  // run_bench_sq_matrix(debug);
   run_bench_rect_matrix(debug);
 }
