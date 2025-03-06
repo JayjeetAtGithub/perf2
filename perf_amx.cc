@@ -117,9 +117,7 @@ void run_bench_sq_matrix(bool debug) {
 
   Benchmark bench(engine, stream, debug);
 
-  // Just bench AMX
-  std::vector<uint64_t> sizes = {64,   128,  256,  512,   1024,
-                                 2048, 4096, 8192, 16384, 32768};
+  std::vector<uint64_t> sizes = {64,   128,  256,  512};
   std::for_each(sizes.begin(), sizes.end(), [&](uint64_t size) {
     bench.run_ip(size, size, size);
   });
@@ -139,7 +137,6 @@ void run_bench_rect_matrix(bool debug) {
   uint64_t const n2_base = 1024 * 1024;
   uint64_t const m = 256;
 
-  // Just bench AMX
   std::vector<uint64_t> n1s = {8192};
   std::vector<uint64_t> n2_multipliers = {1};
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
@@ -161,6 +158,6 @@ int main(int argc, char **argv) {
 
   CLI11_PARSE(app, argc, argv);
 
-  // run_bench_sq_matrix(debug);
+  run_bench_sq_matrix(debug);
   run_bench_rect_matrix(debug);
 }
