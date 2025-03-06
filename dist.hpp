@@ -86,6 +86,9 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
     stream.wait();
     auto end = std::chrono::high_resolution_clock::now();
     diff = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
+    if (debug) {
+      std::cout << "matmul: dims: " << r1 << "," << r2 << "," << c << ": itr #" << i << " :"  << diff << " ns" << std::endl;
+    }
   }
   return diff;
 }
