@@ -79,7 +79,7 @@ static int64_t amx_matmul(int32_t const &r1, int32_t const &r2, const int32_t &c
 }
 
 static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
-                              int32_t const &ic, const float *s, const float *w,
+                              int32_t const &ic, const float *src, const float *w,
                               dnnl::engine &engine, dnnl::stream &stream, bool debug) {
   dnnl::memory::dims s_dims = {n, ic};
   dnnl::memory::dims w_dims = {oc, ic};
@@ -91,8 +91,8 @@ static int64_t amx_inner_product(int32_t const &n, int32_t const &oc,
   auto s_in_mem = dnnl::memory(s_in_md, engine);
   auto w_in_mem = dnnl::memory(w_in_md, engine);
 
-  write_to_dnnl_memory(src.data(), s_in_mem);
-  write_to_dnnl_memory(w.data(), w_in_mem);
+  write_to_dnnl_memory(src, s_in_mem);
+  write_to_dnnl_memory(w, w_in_mem);
 
   auto s_md = dnnl::memory::desc(s_dims, dt::bf16, tag::any);
   auto w_md = dnnl::memory::desc(w_dims, dt::bf16, tag::any);
