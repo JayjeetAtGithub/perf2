@@ -14,7 +14,7 @@ using pprinter =
 #define L3_CACHE 90 * 1024 * 1024
 
 double calc_data_size(uint64_t N1, uint64_t N2, uint64_t M) {
-  return ((double)(N1 * M * sizeof(bf16)) + (double)(N2 * M * sizeof(bf16))) /
+  return ((double)(N1 * M * sizeof(float)) + (double)(N2 * M * sizeof(float))) /
          ((double)(2 << 19));
 }
 
@@ -40,8 +40,8 @@ public:
   }
 
   void run_ip(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<bf16> mat_a(N1 * M);
-    std::vector<bf16> mat_b(N2 * M);
+    std::vector<float> mat_a(N1 * M);
+    std::vector<float> mat_b(N2 * M);
 
     std::mt19937_64 rng;
     rng.seed(47);
@@ -50,14 +50,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (bf16)distrib(rng);
+        mat_a[i * M + j] = distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N2; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_b[i * M + j] = (bf16)distrib(rng);
+        mat_b[i * M + j] = distrib(rng);
       }
     }
 
@@ -75,8 +75,8 @@ public:
   }
 
   void run_gemm(uint64_t N1, uint64_t N2, uint64_t M) {
-    std::vector<bf16> mat_a(N1 * M);
-    std::vector<bf16> mat_b(M * N2);
+    std::vector<float> mat_a(N1 * M);
+    std::vector<float> mat_b(M * N2);
 
     std::mt19937 rng;
     rng.seed(47);
@@ -85,14 +85,14 @@ public:
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < N1; i++) {
       for (uint64_t j = 0; j < M; j++) {
-        mat_a[i * M + j] = (bf16)distrib(rng);
+        mat_a[i * M + j] = distrib(rng);
       }
     }
 
     OMP_PARALLEL_FOR
     for (uint64_t i = 0; i < M; i++) {
       for (uint64_t j = 0; j < N2; j++) {
-        mat_b[i * N2 + j] = (bf16)distrib(rng);
+        mat_b[i * N2 + j] = distrib(rng);
       }
     }
 
@@ -134,17 +134,18 @@ void run_bench_rect_matrix(bool debug) {
 
   Benchmark bench(engine, stream, debug);
 
-  uint64_t const n2_base = 1024 * 1024;
-  uint64_t const m = 256;
+  std::vector<uint64_t> n1s = {32, 10000};
+  std::vector<uint64_t> n2s = {1000000};
+  std::vector<uint64_t> ms = {200, 1536, 3072};
 
-  std::vector<uint64_t> n1s = {8192};
-  std::vector<uint64_t> n2_multipliers = {1};
   std::for_each(n1s.begin(), n1s.end(), [&](uint64_t n1) {
-    std::for_each(n2_multipliers.begin(), n2_multipliers.end(),
-                  [&](uint64_t n2_multiplier) {
-                    uint64_t n2 = n2_base * n2_multiplier;
-                    bench.run_ip(n1, n2, m);
-                  });
+    std::for_each(n2s.begin(), n2s.end(),
+      [&](uint64_t n2) {
+        std::for_each(ms.begin(), ms.end(),
+          [&](uint64_t m) {
+            bench.run_ip(n1, n2, m);
+          });
+      });
   });
   bench.print_results();
 }

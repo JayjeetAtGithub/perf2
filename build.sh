@@ -18,4 +18,5 @@ g++ -O3 \
     -fopenmp \
     -lopenblas \
     -march=sapphirerapids \
+    -mamx-bf16 \
     -o ${BINARY_DIR}/perf_amx
